@@ -1,0 +1,4 @@
+package: github.com/ziffdavis/go-uuid62
+import:
+- package: github.com/google/uuid
+- package: gopkg.in/check.v1

@@ -1,0 +1,8 @@
+hash: 68f17d288b4f789105e13c2189a26e5087b3133db03b83ae829301940bceb812
+updated: 2017-08-10T13:18:51.964019625-05:00
+imports:
+- name: github.com/google/uuid
+  version: 281f560d28af7174109514e936f94c2ab2cb2823
+- name: gopkg.in/check.v1
+  version: 20d25e2804050c1cd24a7eea1e7a6447dd0e74ec
+testImports: []
