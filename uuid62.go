@@ -1,4 +1,4 @@
-package src
+package uuid62
 
 import (
 	"math/big"

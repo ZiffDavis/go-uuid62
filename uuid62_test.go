@@ -1,31 +1,31 @@
-package src
+package uuid62
 
 import "testing"
 import (
+	"fmt"
+	"github.com/google/uuid"
 	. "gopkg.in/check.v1"
 	"math/big"
 	"math/rand"
-	"github.com/google/uuid"
-	"fmt"
 	"strings"
 )
-
 
 func Test(t *testing.T) { TestingT(t) }
 
 type Uuid62Suite struct{}
+
 var _ = Suite(&Uuid62Suite{})
 
 var seed = int64(62)
 
 type intTestVector struct {
-	i *big.Int
-	s string
+	i     *big.Int
+	s     string
 	radix int
 }
 
 type uuidTestVector struct {
-	id string
+	id     string
 	base62 string
 }
 
