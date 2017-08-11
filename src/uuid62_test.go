@@ -1,4 +1,4 @@
-package uuid62
+package src
 
 import "testing"
 import (
@@ -6,6 +6,8 @@ import (
 	"math/big"
 	"math/rand"
 	"github.com/google/uuid"
+	"fmt"
+	"strings"
 )
 
 
@@ -24,7 +26,7 @@ type intTestVector struct {
 
 type uuidTestVector struct {
 	id string
-	i *big.Int
+	base62 string
 }
 
 // Creates a new big.Int from the string s.
@@ -48,15 +50,52 @@ var intTestVectors = []intTestVector{
 }
 
 var uuidTestVectors = []uuidTestVector{
-	{id: "00000000-0000-0000-0000-000000000000", i: mustNewBigInt("0")},
+	{id: "00000000-0000-0000-0000-000000000000", base62: "0"},
+	{id: "3078350b-bfd0-41ff-8cc2-3a3a7969ceb9", base62: "1tsz7Nk9Grmziqc5gFI0pX"},
+	{id: "3078350b-bfd0-41ff-8cc2-3a3a7969ceba", base62: "1tsz7Nk9Grmziqc5gFI0pY"},
 }
 
 func (s *Uuid62Suite) TestUuid2Base62String(c *C) {
 	for _, tv := range uuidTestVectors {
 		id, _ := uuid.Parse(tv.id)
-		base62, err := Uuuid2Base62String(id)
+		base62, err := Uuid2Base62String(id, false)
 		c.Assert(err, IsNil)
-		c.Assert(base62, Equals, tv.i.String())
+		c.Assert(base62, Equals, tv.base62)
+	}
+}
+
+func (s *Uuid62Suite) TestPadBase62String(c *C) {
+	for _, tv := range uuidTestVectors {
+		id, _ := uuid.Parse(tv.id)
+		base62, err := Uuid2Base62String(id, true)
+		expected := fmt.Sprintf("%23s", tv.base62)
+		expected = strings.Replace(expected, " ", "0", -1)
+		c.Assert(err, IsNil)
+		c.Assert(len(base62), Equals, 23)
+		c.Assert(base62, Equals, expected)
+	}
+}
+
+func (s *Uuid62Suite) TestBase62String2Uuid(c *C) {
+	for _, tv := range uuidTestVectors {
+		id, err := Base62String2Uuid(tv.base62)
+		c.Assert(err, IsNil)
+		c.Assert(id.String(), Equals, tv.id)
+	}
+}
+
+// Do 1000 runs with random uuids, to test
+// that identity holds when composing uuid2str and str2uuid
+func (s *Uuid62Suite) TestRandomUuidIdentity(c *C) {
+	runs := 1000
+	for i := 0; i < runs; i++ {
+		id, err := uuid.NewRandom()
+		c.Assert(err, IsNil)
+		s, err := Uuid2Base62String(id, true)
+		c.Assert(err, IsNil)
+		identity, err := Base62String2Uuid(s)
+		c.Assert(err, IsNil)
+		c.Assert(*identity, Equals, id)
 	}
 }
 
@@ -100,6 +139,12 @@ func (s *Uuid62Suite) TestInvalidString2BigInt(c *C) {
 
 	_, err3 := String2BigInt("-", 62)
 	c.Assert(err3, ErrorMatches, "Digit.*")
+}
+
+func (s *Uuid62Suite) TestPaddedString2BigInt(c *C) {
+	result, err := String2BigInt("00000013", 10)
+	c.Assert(err, IsNil)
+	c.Assert(result.Int64(), Equals, int64(13))
 }
 
 // Do 1000 runs with random big ints, to test
